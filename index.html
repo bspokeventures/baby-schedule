@@ -9,7 +9,16 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Baby Day</title>
-  <link rel="stylesheet" href="style.css?v=20260822-2230">
+  <link rel="stylesheet" href="style.css?v=20260822-2240">
+  <style>
+    .nextCard.tomorrow{background:linear-gradient(150deg,#60758a,#465b70)}
+    .quickGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .resettleQuick{background:linear-gradient(180deg,#fffefa,#fff9ed)}
+    .resettleStrip{margin:-5px 0 7px 82px;padding:7px 10px;border-radius:11px;background:#fff7e8;color:#765a2a;display:flex;gap:7px;align-items:center;font-size:.68rem}
+    .resettleStrip b{font-size:.68rem}.resettleStrip span:last-child{color:var(--muted);margin-left:auto}.resettleDetail b{color:#765a2a}
+    @media(max-width:390px){.resettleStrip{margin-left:75px;flex-wrap:wrap}.resettleStrip span:last-child{width:100%;margin-left:0}}
+    @media(min-width:680px){.quickGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  </style>
 </head>
 <body>
   <main class="app">
@@ -44,11 +53,12 @@
 
       <section class="quickSection">
         <h3>What just happened?</h3>
-        <p>One tap logs the real time and moves the rest of today.</p>
+        <p>One tap logs what happened. Resettles keep the nap running.</p>
         <div class="quickGrid">
           <button class="quick feedQuick" id="feedNowBtn"><span>🍼</span><b>Fed now</b><small id="feedNowSub">Log the nearest feed</small></button>
           <button class="quick sleepQuick" id="sleepNowBtn"><span>😴</span><b id="sleepNowLabel">Nap started</b><small id="sleepNowSub">Start the next nap</small></button>
           <button class="quick wakeQuick" id="wakeNowBtn"><span>☀️</span><b id="wakeNowLabel">Woke up</b><small id="wakeNowSub">Morning / end nap</small></button>
+          <button class="quick resettleQuick" id="resettleNowBtn" disabled><span>🫶</span><b>Paci / resettle</b><small id="resettleNowSub">Available during a nap</small></button>
         </div>
         <div class="updateNote hidden" id="updateNote"></div>
       </section>
@@ -83,6 +93,7 @@
             <div><b>Wake windows</b><span>about 2 hours</span></div>
             <div><b>Feeds</b><span>every 3–4 hours</span></div>
             <div><b>Naps</b><span>3 naps, max 4 hours total</span></div>
+            <div><b>Resettles</b><span>log cries/paci help without ending a nap</span></div>
             <div><b>Bedtime</b><span>6:30–7:00 PM</span></div>
             <div><b>Dream feed</b><span>9:30–11:00 PM</span></div>
           </div>
@@ -158,7 +169,7 @@
   <dialog id="resetDialog">
     <div class="dialogCard">
       <div class="dialogHead"><div><div class="eyebrow">Start over</div><h3>Reset today?</h3></div></div>
-      <p class="dialogHelp">This clears today's logged actual times. Past days stay in History.</p>
+      <p class="dialogHelp">This clears today's logged actual times and resettles. Past days stay in History.</p>
       <div class="dialogActions">
         <button class="secondary" id="cancelReset">Cancel</button>
         <button class="danger" id="confirmReset">Reset today</button>
@@ -166,6 +177,6 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=20260822-2230"></script>
+  <script src="app.js?v=20260822-2240"></script>
 </body>
 </html>
