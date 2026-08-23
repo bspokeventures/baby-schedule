@@ -30,7 +30,7 @@ const originalSetItem=Storage.prototype.setItem;
 Storage.prototype.setItem=function(key,value){
   if(this===localStorage&&key===STORE){
     try{
-      const incoming=normalize(JSON.parse(value)),existing=normalize(JSON.parse(originalSetItem===undefined?'{}':(nativeGet(STORE)||'{}')));
+      const incoming=normalize(JSON.parse(value)),existing=normalize(JSON.parse(nativeGet(STORE)||'{}'));
       Object.entries(existing.days).forEach(([k,d])=>{
         const extras=manualFor(d);
         if(!extras.length)return;
@@ -70,19 +70,19 @@ function injectUI(){
   document.body.appendChild(dlg);$('#manualEntryForm').addEventListener('submit',e=>{e.preventDefault();saveDialog();dlg.close()});$('#manualEntryDelete').addEventListener('click',deleteEditing);
 }
 
-let editingId=null,editingDate=null;
+let editingId=null;
 function findEntry(id){const store=readStore();for(const [date,day] of Object.entries(store.days||{})){const e=manualFor(day).find(x=>x.id===id);if(e)return {store,date,day,e}}return null}
 function openDialog(id=null){
-  editingId=id;editingDate=null;const found=id?findEntry(id):null;const e=found?.e;editingDate=found?.date||null;
+  editingId=id;const found=id?findEntry(id):null;const e=found?.e;
   $('#manualEntryTitle').textContent=e?'Edit manual entry':'Add manual entry';$('#manualEntryType').value=e?.type||'feed';$('#manualEntryTime').value=e?.time||nowTime();$('#manualEntryDate').value=found?.date||todayKey();$('#manualEntryNote').value=e?.note||'';$('#manualEntryDelete').classList.toggle('hidden',!e);$('#manualEntryDialog').showModal();
 }
 function saveDialog(){
   const date=$('#manualEntryDate').value||todayKey(),time=$('#manualEntryTime').value,type=$('#manualEntryType').value,note=$('#manualEntryNote').value.trim();if(!time)return;
   const store=readStore();
   if(editingId){for(const day of Object.values(store.days||{})){day.manualEntries=manualFor(day).filter(x=>x.id!==editingId)}}
-  const day=getDay(store,date,true);day.manualEntries=manualFor(day);day.manualEntries.push({id:editingId||`m_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,type,time,note,date,createdAt:new Date().toISOString()});day.updatedAt=new Date().toISOString();writeStore(store);editingId=null;editingDate=null;renderAllManual();
+  const day=getDay(store,date,true);day.manualEntries=manualFor(day);day.manualEntries.push({id:editingId||`m_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,type,time,note,date,createdAt:new Date().toISOString()});day.updatedAt=new Date().toISOString();writeStore(store);editingId=null;renderAllManual();
 }
-function deleteEditing(){if(!editingId)return;const store=readStore();for(const day of Object.values(store.days||{}))day.manualEntries=manualFor(day).filter(x=>x.id!==editingId);writeStore(store);editingId=null;editingDate=null;$('#manualEntryDialog').close();renderAllManual()}
+function deleteEditing(){if(!editingId)return;const store=readStore();for(const day of Object.values(store.days||{}))day.manualEntries=manualFor(day).filter(x=>x.id!==editingId);writeStore(store);editingId=null;$('#manualEntryDialog').close();renderAllManual()}
 
 function renderTodayManual(){
   const box=$('#manualExtras');if(!box)return;const day=getDay(readStore(),todayKey(),false),items=manualFor(day).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''));
@@ -109,7 +109,9 @@ function appendManualToHistoryDialog(date){
 function openManualHistory(date){const store=readStore(),items=manualFor(store.days?.[date]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''));$('#historyTitle').textContent=dateLabel(date);$('#historyDetails').innerHTML=`<div class="manualHistorySection"><div><div class="eyebrow">Manual-only day</div></div>${items.map(e=>{const t=TYPES[e.type]||TYPES.note;return `<div class="detailRow"><span>${t.icon} ${esc(t.label)}${e.note?` · ${esc(e.note)}`:''}</span><b>${fmt(e.time)}</b></div>`}).join('')}</div>`;$('#historyDialog').showModal()}
 
 function decorateStats(){
-  const grid=$('#statGrid');if(!grid)return;grid.querySelectorAll('.manualStat').forEach(x=>x.remove());const days=Number($('#rangeTabs button.active')?.dataset.days||7),cut=new Date();cut.setHours(0,0,0,0);cut.setDate(cut.getDate()-(days-1));const items=allManual(readStore()).filter(e=>{const [y,m,d]=e.date.split('-').map(Number);return new Date(y,m-1,d)>=cut}),feeds=items.filter(e=>e.type==='feed').length;grid.insertAdjacentHTML('beforeend',`<div class="statCard manualStat"><span>Extra feeds</span><b>${feeds}</b><small>manual / off-schedule</small></div><div class="statCard manualStat"><span>Manual entries</span><b>${items.length}</b><small>last ${days} days</small></div>`)
+  const grid=$('#statGrid');if(!grid)return;const days=Number($('#rangeTabs button.active')?.dataset.days||7),cut=new Date();cut.setHours(0,0,0,0);cut.setDate(cut.getDate()-(days-1));const items=allManual(readStore()).filter(e=>{const [y,m,d]=e.date.split('-').map(Number);return new Date(y,m-1,d)>=cut}),feeds=items.filter(e=>e.type==='feed').length,key=`${days}:${feeds}:${items.length}`;
+  if(grid.dataset.manualKey===key&&grid.querySelector('.manualStat'))return;
+  grid.dataset.manualKey=key;grid.querySelectorAll('.manualStat').forEach(x=>x.remove());grid.insertAdjacentHTML('beforeend',`<div class="statCard manualStat"><span>Extra feeds</span><b>${feeds}</b><small>manual / off-schedule</small></div><div class="statCard manualStat"><span>Manual entries</span><b>${items.length}</b><small>last ${days} days</small></div>`)
 }
 function exportFullBackup(){const store=readStore(),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`stella-baby-day-backup-${todayKey()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function renderAllManual(){renderTodayManual();decorateHistoryList();decorateStats()}
@@ -120,7 +122,7 @@ const statObs=new MutationObserver(()=>setTimeout(decorateStats,0));if($('#statG
 document.addEventListener('click',e=>{
   const mh=e.target.closest('[data-manual-history]');if(mh){e.preventDefault();openManualHistory(mh.dataset.manualHistory);return}
   const h=e.target.closest('[data-history]');if(h)setTimeout(()=>appendManualToHistoryDialog(h.dataset.history),0);
-  if(e.target.closest('#rangeTabs'))setTimeout(decorateStats,0);
+  if(e.target.closest('#rangeTabs,.tab[data-tab="stats"]'))setTimeout(decorateStats,0);
 },true);
 // Export from localStorage so recently-added manual entries are included even before a reload.
 document.addEventListener('click',e=>{if(e.target.closest('#exportBtn,#historyExportBtn')){e.preventDefault();e.stopImmediatePropagation();exportFullBackup()}},true);
