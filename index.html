@@ -1,63 +1,113 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f6f3ee">
-<title>Baby Day — Live Schedule</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f4ef">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Baby Day</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="app">
-  <header class="top">
-    <div><div class="kicker">Live baby schedule</div><h1>Baby Day</h1><div class="date" id="dateText"></div></div>
-    <button class="btn" id="resetBtn">Reset</button>
-  </header>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Baby schedule</div>
+        <h1>Baby Day</h1>
+        <div class="date" id="dateText"></div>
+      </div>
+      <button class="iconButton" id="resetBtn" aria-label="Reset today">↻</button>
+    </header>
 
-  <section class="hero" aria-live="polite">
-    <small>Next up</small>
-    <h2 id="nextTitle">Building today…</h2>
-    <p id="nextMeta">Log what actually happens. Every future unlocked event recalculates from it.</p>
-    <div class="hero-actions"><button class="primary" id="logNext">Log next now</button><button id="clearNext" class="hidden">Return next to auto</button></div>
-  </section>
+    <section class="nextCard" id="nextCard" aria-live="polite">
+      <div class="nextLabel" id="nextLabel">NEXT UP</div>
+      <div class="nextMain">
+        <div>
+          <h2 id="nextTitle">Building today…</h2>
+          <div class="nextTime" id="nextTime">—</div>
+        </div>
+        <div class="nextIcon" id="nextIcon">♡</div>
+      </div>
+      <p id="nextMeta">The plan updates automatically when you log what actually happens.</p>
+      <button class="heroAction" id="heroAction">Log now</button>
+    </section>
 
-  <div class="rules">
-    <div class="rule"><b>2 hour wake windows</b><span>Measured from each wake-up</span></div>
-    <div class="rule"><b>Feeds every 3–4 hours</b><span>Planner aims for 3½ hours</span></div>
-    <div class="rule"><b>3 naps · max 4 hours</b><span>Nap 3 shortens as needed</span></div>
-    <div class="rule"><b>Bed 6:30–7:00</b><span>Dream feed 9:30–11:00</span></div>
-  </div>
+    <section class="quickSection">
+      <h3>What just happened?</h3>
+      <p>Tap one button. The rest of today moves automatically.</p>
+      <div class="quickGrid">
+        <button class="quick feedQuick" id="feedNowBtn"><span>🍼</span><b>Fed now</b><small id="feedNowSub">Next feed</small></button>
+        <button class="quick sleepQuick" id="sleepNowBtn"><span>😴</span><b id="sleepNowLabel">Nap started</b><small id="sleepNowSub">Next nap</small></button>
+        <button class="quick wakeQuick" id="wakeNowBtn"><span>☀️</span><b id="wakeNowLabel">Woke up</b><small id="wakeNowSub">Morning / nap</small></button>
+      </div>
+      <div class="updateNote hidden" id="updateNote"></div>
+    </section>
 
-  <section class="card">
-    <div class="head"><div><h3>Daily anchors</h3><p>These are the ideal starting points. Actual times override them for today.</p></div></div>
-    <div class="body"><div class="anchors">
-      <div class="field"><label>Ideal wake</label><input type="time" id="anchorWake"></div>
-      <div class="field"><label>Ideal first feed</label><input type="time" id="anchorFeed"></div>
-      <div class="field"><label>Bedtime target</label><input type="time" id="anchorBed"></div>
-      <div class="field"><label>Dream feed target</label><input type="time" id="anchorDream"></div>
-    </div></div>
-  </section>
+    <section class="card planCard">
+      <div class="sectionHead">
+        <div>
+          <div class="eyebrow">Live plan</div>
+          <h3>Today</h3>
+        </div>
+        <span class="livePill">AUTO-ADJUSTING</span>
+      </div>
+      <div class="timeline" id="timeline"></div>
+      <div class="check" id="scheduleCheck"></div>
+      <p class="tapHint">Tap any row to correct or lock a time.</p>
+    </section>
 
-  <section class="card">
-    <div class="head"><div><h3>Today at a glance</h3><p id="reflowNote">The default day, calculated from a 7:00 AM wake and ~7:15 AM first feed.</p></div></div>
-    <div class="body" id="plan"></div>
-  </section>
+    <details class="settings card">
+      <summary>
+        <span><span class="eyebrow">Optional</span><b>Schedule settings</b></span>
+        <span class="chev">⌄</span>
+      </summary>
+      <div class="settingsBody">
+        <p>Only change these if you want the whole day to start from different anchors.</p>
+        <div class="anchorGrid">
+          <label>Ideal wake<input type="time" id="anchorWake"></label>
+          <label>First feed<input type="time" id="anchorFeed"></label>
+          <label>Bedtime target<input type="time" id="anchorBed"></label>
+          <label>Dream feed<input type="time" id="anchorDream"></label>
+        </div>
+        <div class="ruleList">
+          <div><b>Wake windows</b><span>about 2 hours</span></div>
+          <div><b>Feeds</b><span>every 3–4 hours</span></div>
+          <div><b>Naps</b><span>3 naps, max 4 hours total</span></div>
+          <div><b>Bedtime</b><span>6:30–7:00 PM</span></div>
+          <div><b>Dream feed</b><span>9:30–11:00 PM</span></div>
+        </div>
+      </div>
+    </details>
 
-  <section class="card">
-    <div class="head"><div><h3>Log the real day</h3><p>Change any time or tap “Now.” Green = actual. Everything after it stays live unless you lock it too.</p></div></div>
-    <div class="body" id="events"></div>
-  </section>
+    <p class="foot">Planning helper based on the routine you provided. Use your pediatrician’s guidance when it differs.</p>
+  </main>
 
-  <section class="card">
-    <div class="head"><div><h3>Schedule check</h3><p>Flags conflicts instead of quietly forcing an impossible schedule.</p></div></div>
-    <div class="body"><div class="stats" id="stats"></div><div class="alerts" id="alerts"></div></div>
-  </section>
+  <dialog id="editDialog">
+    <form method="dialog" class="dialogCard" id="editForm">
+      <div class="dialogHead">
+        <div><div class="eyebrow">Adjust today</div><h3 id="editTitle">Edit time</h3></div>
+        <button class="closeButton" value="cancel" aria-label="Close">×</button>
+      </div>
+      <p class="dialogHelp">Turn on “Actual” only for times that really happened. Unchecked times stay automatic.</p>
+      <div id="editFields"></div>
+      <div class="dialogActions">
+        <button type="button" class="secondary" id="clearEditBtn">Use automatic plan</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
 
-  <p class="foot">Planning helper based on the routine you provided. Babies are allowed to ignore software. Follow your pediatrician’s guidance when it differs.</p>
-</main>
+  <dialog id="resetDialog">
+    <div class="dialogCard">
+      <div class="dialogHead"><div><div class="eyebrow">Start over</div><h3>Reset today?</h3></div></div>
+      <p class="dialogHelp">This clears logged actual times and restores the default 7:00 AM wake and 7:15 AM first feed.</p>
+      <div class="dialogActions">
+        <button class="secondary" id="cancelReset">Cancel</button>
+        <button class="danger" id="confirmReset">Reset</button>
+      </div>
+    </div>
+  </dialog>
 
-<dialog id="resetDialog"><div class="dlg"><h3>Reset today?</h3><p>Clears all actual times and restores the default anchors: 7:00 wake, 7:15 first feed, 6:30 bedtime, 10:15 dream feed.</p><div class="dlgActions"><button class="btn" id="cancelReset">Cancel</button><button class="btn danger" id="confirmReset">Reset day</button></div></div></dialog>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
