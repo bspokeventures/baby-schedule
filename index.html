@@ -9,78 +9,123 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Baby Day</title>
-  <link rel="stylesheet" href="style.css?v=20260822-2200">
+  <link rel="stylesheet" href="style.css?v=20260822-2230">
 </head>
 <body>
   <main class="app">
     <header class="topbar">
       <div>
-        <div class="eyebrow">Baby schedule</div>
+        <div class="eyebrow">Stella's schedule</div>
         <h1>Baby Day</h1>
         <div class="date" id="dateText"></div>
       </div>
       <button class="iconButton" id="resetBtn" aria-label="Reset today">↻</button>
     </header>
 
-    <section class="nextCard" id="nextCard" aria-live="polite">
-      <div class="nextLabel" id="nextLabel">NEXT UP</div>
-      <div class="nextMain">
-        <div>
-          <h2 id="nextTitle">Building today…</h2>
-          <div class="nextTime" id="nextTime">—</div>
+    <nav class="tabs" aria-label="Baby Day sections">
+      <button class="tab active" data-tab="today">Today</button>
+      <button class="tab" data-tab="history">History</button>
+      <button class="tab" data-tab="stats">Stats</button>
+    </nav>
+
+    <section class="view active" id="todayView">
+      <section class="nextCard" id="nextCard" aria-live="polite">
+        <div class="nextLabel" id="nextLabel">NEXT UP</div>
+        <div class="nextMain">
+          <div>
+            <h2 id="nextTitle">Building today…</h2>
+            <div class="nextTime" id="nextTime">—</div>
+          </div>
+          <div class="nextIcon" id="nextIcon">♡</div>
         </div>
-        <div class="nextIcon" id="nextIcon">♡</div>
-      </div>
-      <p id="nextMeta">The plan updates automatically when you log what actually happens.</p>
-      <button class="heroAction" id="heroAction">Log now</button>
+        <p id="nextMeta">The plan updates automatically when you log what actually happens.</p>
+        <button class="heroAction" id="heroAction">Log now</button>
+      </section>
+
+      <section class="quickSection">
+        <h3>What just happened?</h3>
+        <p>One tap logs the real time and moves the rest of today.</p>
+        <div class="quickGrid">
+          <button class="quick feedQuick" id="feedNowBtn"><span>🍼</span><b>Fed now</b><small id="feedNowSub">Log the nearest feed</small></button>
+          <button class="quick sleepQuick" id="sleepNowBtn"><span>😴</span><b id="sleepNowLabel">Nap started</b><small id="sleepNowSub">Start the next nap</small></button>
+          <button class="quick wakeQuick" id="wakeNowBtn"><span>☀️</span><b id="wakeNowLabel">Woke up</b><small id="wakeNowSub">Morning / end nap</small></button>
+        </div>
+        <div class="updateNote hidden" id="updateNote"></div>
+      </section>
+
+      <section class="card planCard">
+        <div class="sectionHead">
+          <div>
+            <div class="eyebrow">Live plan</div>
+            <h3>Today</h3>
+          </div>
+          <span class="livePill">AUTO-ADJUSTING</span>
+        </div>
+        <div class="timeline" id="timeline"></div>
+        <div class="check" id="scheduleCheck"></div>
+        <p class="tapHint">Tap any row to correct a time.</p>
+      </section>
+
+      <details class="settings card">
+        <summary>
+          <span><span class="eyebrow">Optional</span><b>Schedule settings & backup</b></span>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="settingsBody">
+          <p>These anchors apply to today and become the defaults for new days.</p>
+          <div class="anchorGrid">
+            <label>Ideal wake<input type="time" id="anchorWake"></label>
+            <label>First feed<input type="time" id="anchorFeed"></label>
+            <label>Bedtime target<input type="time" id="anchorBed"></label>
+            <label>Dream feed<input type="time" id="anchorDream"></label>
+          </div>
+          <div class="ruleList">
+            <div><b>Wake windows</b><span>about 2 hours</span></div>
+            <div><b>Feeds</b><span>every 3–4 hours</span></div>
+            <div><b>Naps</b><span>3 naps, max 4 hours total</span></div>
+            <div><b>Bedtime</b><span>6:30–7:00 PM</span></div>
+            <div><b>Dream feed</b><span>9:30–11:00 PM</span></div>
+          </div>
+          <div class="privacyBox">
+            <div><b>Private local history</b><span>Stella's logged data stays in this browser. It is not saved to GitHub.</span></div>
+            <div class="backupActions">
+              <button class="secondary compact" id="exportBtn">Export backup</button>
+              <button class="secondary compact" id="importBtn">Import backup</button>
+              <input type="file" id="importFile" accept="application/json,.json" hidden>
+            </div>
+          </div>
+        </div>
+      </details>
     </section>
 
-    <section class="quickSection">
-      <h3>What just happened?</h3>
-      <p>Tap one button. The rest of today moves automatically.</p>
-      <div class="quickGrid">
-        <button class="quick feedQuick" id="feedNowBtn"><span>🍼</span><b>Fed now</b><small id="feedNowSub">Next feed</small></button>
-        <button class="quick sleepQuick" id="sleepNowBtn"><span>😴</span><b id="sleepNowLabel">Nap started</b><small id="sleepNowSub">Next nap</small></button>
-        <button class="quick wakeQuick" id="wakeNowBtn"><span>☀️</span><b id="wakeNowLabel">Woke up</b><small id="wakeNowSub">Morning / nap</small></button>
+    <section class="view" id="historyView">
+      <div class="pageHead">
+        <div><div class="eyebrow">Saved on this device</div><h2>History</h2><p>Every day with at least one logged actual time stays here.</p></div>
+        <button class="secondary compact" id="historyExportBtn">Backup</button>
       </div>
-      <div class="updateNote hidden" id="updateNote"></div>
+      <div id="historyList" class="historyList"></div>
     </section>
 
-    <section class="card planCard">
-      <div class="sectionHead">
-        <div>
-          <div class="eyebrow">Live plan</div>
-          <h3>Today</h3>
-        </div>
-        <span class="livePill">AUTO-ADJUSTING</span>
+    <section class="view" id="statsView">
+      <div class="pageHead">
+        <div><div class="eyebrow">Patterns over time</div><h2>Stats</h2><p>Stats use actual logged times only — never planned times.</p></div>
       </div>
-      <div class="timeline" id="timeline"></div>
-      <div class="check" id="scheduleCheck"></div>
-      <p class="tapHint">Tap any row to correct or lock a time.</p>
+      <div class="rangeTabs" id="rangeTabs">
+        <button data-days="7" class="active">7 days</button>
+        <button data-days="14">14 days</button>
+        <button data-days="30">30 days</button>
+      </div>
+      <div class="statGrid" id="statGrid"></div>
+      <section class="card chartCard">
+        <div class="sectionHead"><div><div class="eyebrow">Trend</div><h3>Bedtime</h3></div></div>
+        <div id="bedChart" class="miniChart"></div>
+      </section>
+      <section class="card chartCard">
+        <div class="sectionHead"><div><div class="eyebrow">Trend</div><h3>Daytime naps</h3></div></div>
+        <div id="napChart" class="miniChart"></div>
+      </section>
+      <p class="statsNote" id="statsNote"></p>
     </section>
-
-    <details class="settings card">
-      <summary>
-        <span><span class="eyebrow">Optional</span><b>Schedule settings</b></span>
-        <span class="chev">⌄</span>
-      </summary>
-      <div class="settingsBody">
-        <p>Only change these if you want the whole day to start from different anchors.</p>
-        <div class="anchorGrid">
-          <label>Ideal wake<input type="time" id="anchorWake"></label>
-          <label>First feed<input type="time" id="anchorFeed"></label>
-          <label>Bedtime target<input type="time" id="anchorBed"></label>
-          <label>Dream feed<input type="time" id="anchorDream"></label>
-        </div>
-        <div class="ruleList">
-          <div><b>Wake windows</b><span>about 2 hours</span></div>
-          <div><b>Feeds</b><span>every 3–4 hours</span></div>
-          <div><b>Naps</b><span>3 naps, max 4 hours total</span></div>
-          <div><b>Bedtime</b><span>6:30–7:00 PM</span></div>
-          <div><b>Dream feed</b><span>9:30–11:00 PM</span></div>
-        </div>
-      </div>
-    </details>
 
     <p class="foot">Planning helper based on the routine you provided. Use your pediatrician’s guidance when it differs.</p>
   </main>
@@ -91,26 +136,36 @@
         <div><div class="eyebrow">Adjust today</div><h3 id="editTitle">Edit time</h3></div>
         <button class="closeButton" value="cancel" aria-label="Close">×</button>
       </div>
-      <p class="dialogHelp">Turn on “Actual” only for times that really happened. Unchecked times stay automatic.</p>
+      <p class="dialogHelp">Checked times are actual events. Unchecked times stay automatic and keep recalculating.</p>
       <div id="editFields"></div>
       <div class="dialogActions">
-        <button type="button" class="secondary" id="clearEditBtn">Use automatic plan</button>
+        <button type="button" class="secondary" id="clearEditBtn">Use automatic</button>
         <button type="submit" class="primary">Save</button>
       </div>
     </form>
   </dialog>
 
+  <dialog id="historyDialog">
+    <div class="dialogCard">
+      <div class="dialogHead">
+        <div><div class="eyebrow">Saved day</div><h3 id="historyTitle">Day details</h3></div>
+        <button class="closeButton" id="closeHistory" aria-label="Close">×</button>
+      </div>
+      <div id="historyDetails" class="historyDetails"></div>
+    </div>
+  </dialog>
+
   <dialog id="resetDialog">
     <div class="dialogCard">
       <div class="dialogHead"><div><div class="eyebrow">Start over</div><h3>Reset today?</h3></div></div>
-      <p class="dialogHelp">This clears logged actual times and restores the default 7:00 AM wake and 7:15 AM first feed.</p>
+      <p class="dialogHelp">This clears today's logged actual times. Past days stay in History.</p>
       <div class="dialogActions">
         <button class="secondary" id="cancelReset">Cancel</button>
-        <button class="danger" id="confirmReset">Reset</button>
+        <button class="danger" id="confirmReset">Reset today</button>
       </div>
     </div>
   </dialog>
 
-  <script src="app.js?v=20260822-2200"></script>
+  <script src="app.js?v=20260822-2230"></script>
 </body>
 </html>
